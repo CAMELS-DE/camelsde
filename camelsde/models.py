@@ -1,6 +1,5 @@
 from typing import List, Optional, Union
 import warnings
-import os
 from pathlib import Path
 
 from pydantic import BaseModel, Field, model_validator
@@ -9,47 +8,50 @@ import pandas as pd
 import geopandas as gpd
 import plotly.graph_objects as go
 
-# Default path for the CAMELS-DE dataset inside this repository
-DEFAULT_CAMELS_DE_PATH = str(Path(__file__).parent.parent / "datasets" / "CAMELS_DE_v1_0_0")
+from camelsde.config import get_settings, set_camels_path
 
 class CAMELS_DE(BaseModel):
     """
-    Base class for CAMELS DE dataset.
+    Interface for the CAMELS-DE dataset (v1.0.0).
 
-    Attributes
+    Parameters
     ----------
-    path : str
-        Path to the CAMELS-DE dataset folder.  
-        Must be CAMELS-DE v1.0.0 at the moment.  
-        Defaults to 'datasets/CAMELS_DE_v1_0_0' in the package directory.
-    validate_path : bool
-        If True, validates the dataset path by checking for the existence of key files.  
-        Defaults to True. Can be set to False especially for testing purposes.
-
+    path : Union[str, Path], optional
+        Path to the CAMELS-DE dataset folder.
+        If not provided, reads from CAMELS_DE_PATH in environment or config file.  
+        Use `set_camels_path()` to set a default path persistently.
+    validate_path : bool, default=True
+        If True, checks the dataset folder for expected files.
+        Especially useful for testing.
     """
-    path: str = Field(default=DEFAULT_CAMELS_DE_PATH)
+    path: Optional[Path] = Field(default=None)
     validate_path: bool = Field(default=True, exclude=True)
-    
+
     @model_validator(mode="before")
     def check_path_validation(cls, values):
         """
-        Validate the dataset path based on the validate_path parameter.
-        
-        This root validator runs before field validation and checks if path validation
-        should be performed based on the validate_path parameter.
+        Ensure a dataset path is provided and valid.
         """
-        path_value = values.get('path', DEFAULT_CAMELS_DE_PATH)
-        validate_path = values.get('validate_path', True)
-        
-        if validate_path:
-            path = Path(path_value)
-            
+        path_val = values.get("path")
+        if path_val is None:
+            # attempt to read from settings
+            settings = get_settings()
+            path_val = settings.CAMELS_DE_PATH
+
+        if not path_val:
+            raise ValueError(
+                "No CAMELS-DE path provided."
+                " Please pass `path` to the CAMELS_DE constructor or call `set_camels_path()` to set a default persistently."
+                "\nYou can download CAMELS-DE v1.0.0 from https://doi.org/10.5281/zenodo.13837553"
+            )
+        path = Path(path_val)
+
+        if values.get("validate_path", True):
             if not path.exists():
                 raise ValueError(
                     f"The specified path '{path}' does not exist. "
                     f"Please provide a valid path to the CAMELS-DE dataset or download the dataset "
-                    f"from https://zenodo.org/records/13837553 and extract it to {DEFAULT_CAMELS_DE_PATH} "
-                    f"or another location specified via the path parameter."
+                    f"from https://zenodo.org/records/13837553 and extract it to the specified location."
                 )
             
             # We check for the number of .csv files that should be present in the dataset
@@ -60,6 +62,9 @@ class CAMELS_DE(BaseModel):
                     f"Please ensure you have downloaded v1.0.0 from https://zenodo.org/records/13837553 "
                     f"and did not modify the folder structure and files."
                     )
+            
+        # Set the path attribute
+        values["path"] = path
         
         # Return the values unchanged
         return values
@@ -120,7 +125,7 @@ class CAMELS_DE(BaseModel):
             files_to_load = [valid_attributes[static_attribute]]
 
         for file in files_to_load:
-            file_path = f"{self.path}/{file}"
+            file_path = self.path / file
             if "topographic" in file:
                 # set column provider_id to string
                 df = pl.read_csv(file_path, dtypes={"provider_id": str})
@@ -190,7 +195,7 @@ class CAMELS_DE(BaseModel):
         pd.DataFrame
             DataFrame containing the timeseries data for the specified gauge ID.
         """
-        file_path = f"{self.path}/timeseries/CAMELS_DE_hydromet_timeseries_{gauge_id}.csv"
+        file_path = self.path / "timeseries" / f"CAMELS_DE_hydromet_timeseries_{gauge_id}.csv"
 
         df = pl.read_csv(file_path, try_parse_dates=True)
 
@@ -210,7 +215,7 @@ class CAMELS_DE(BaseModel):
         pd.DataFrame
             DataFrame containing the simulated timeseries data for the specified gauge ID.
         """
-        file_path = f"{self.path}/timeseries_simulated/CAMELS_DE_discharge_sim_{gauge_id}.csv"
+        file_path = self.path / "timeseries_simulated" / f"CAMELS_DE_discharge_sim_{gauge_id}.csv"
         
         df = pl.read_csv(file_path, try_parse_dates=True)
 
@@ -238,9 +243,9 @@ class CAMELS_DE(BaseModel):
             GeoDataFrame containing the requested geopackage data.
         """
         if layer == "catchments":
-            file_path = f"{self.path}/CAMELS_DE_catchment_boundaries/catchments/CAMELS_DE_catchments.gpkg"
+            file_path = self.path / "CAMELS_DE_catchment_boundaries" / "catchments" / "CAMELS_DE_catchments.gpkg"
         elif layer == "gauging_stations":
-            file_path = f"{self.path}/CAMELS_DE_catchment_boundaries/gauging_stations/CAMELS_DE_gauging_stations.gpkg"
+            file_path = self.path / "CAMELS_DE_catchment_boundaries" / "gauging_stations" / "CAMELS_DE_gauging_stations.gpkg"
         else:
             raise ValueError("Invalid layer. Must be 'catchments' or 'gauging_stations'.")
 
