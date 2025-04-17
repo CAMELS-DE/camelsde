@@ -1,0 +1,4 @@
+gauge_id,p_mean,p_seasonality,frac_snow,high_prec_freq,high_prec_dur,high_prec_timing,low_prec_freq,low_prec_dur,low_prec_timing
+DE110000,2.97,0.01,0.12,15.23,1.19,djf,202.67,3.71,son
+DE110010,2.87,0.05,0.12,13.3,1.19,jja,178.97,3.72,son
+DE110020,2.54,0.19,0.1,15.22,1.18,jja,212.8,3.74,son

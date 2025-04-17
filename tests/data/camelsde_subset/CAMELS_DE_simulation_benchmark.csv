@@ -1,0 +1,4 @@
+gauge_id,training_perc_complete,validation_perc_complete,testing_perc_complete,NSE_lstm,NSE_hbv
+DE110000,99.71,81.71,100.0,0.931,0.819
+DE110010,99.43,100.0,95.08,0.819,-0.026
+DE110020,100.0,100.0,100.0,0.936,0.801

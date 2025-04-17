@@ -1,0 +1,4 @@
+gauge_id,clay_0_30cm_mean,clay_30_100cm_mean,clay_100_200cm_mean,silt_0_30cm_mean,silt_30_100cm_mean,silt_100_200cm_mean,sand_0_30cm_mean,sand_30_100cm_mean,sand_100_200cm_mean,coarse_fragments_0_30cm_mean,coarse_fragments_30_100cm_mean,coarse_fragments_100_200cm_mean,bulk_density_0_30cm_mean,bulk_density_30_100cm_mean,bulk_density_100_200cm_mean,soil_organic_carbon_0_30cm_mean,soil_organic_carbon_30_100cm_mean,soil_organic_carbon_100_200cm_mean
+DE110000,28.89,29.54,29.61,41.18,40.47,39.76,24.79,24.86,25.49,15.83,19.23,21.34,1.08,1.36,1.42,44.79,14.35,10.5
+DE110010,28.99,29.61,29.74,41.03,40.41,39.66,25.03,25.03,25.65,15.89,19.3,21.46,1.08,1.37,1.43,44.69,14.31,10.48
+DE110020,28.64,29.76,29.54,43.63,42.65,42.08,22.78,22.64,23.42,14.72,19.3,21.58,1.13,1.39,1.45,40.3,12.32,9.12

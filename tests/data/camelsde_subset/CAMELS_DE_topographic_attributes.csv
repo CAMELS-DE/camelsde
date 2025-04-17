@@ -1,0 +1,4 @@
+gauge_id,provider_id,gauge_name,water_body_name,federal_state,gauge_lat,gauge_lon,gauge_easting,gauge_northing,gauge_elev_metadata,area_metadata,gauge_elev,area,elev_mean,elev_min,elev_5,elev_50,elev_95,elev_max
+DE110000,105,Kirchen-Hausen,Donau,Baden-Württemberg,47.925507,8.679586,4222273.0,2757760.0,657.33,758.53,661.99,763.07,822.25,658.53,681.92,792.26,1037.07,1159.79
+DE110010,106,Möhringen,Donau,Baden-Württemberg,47.948961,8.760112,4228335.0,2760262.0,649.16,826.96,650.84,831.29,820.25,649.94,680.98,792.74,1033.22,1159.79
+DE110020,120,Hundersingen,Donau,Baden-Württemberg,48.072462,9.3961,4275974.0,2773394.0,542.53,2621.32,546.44,2618.6,774.9,541.59,621.95,765.67,962.75,1159.79

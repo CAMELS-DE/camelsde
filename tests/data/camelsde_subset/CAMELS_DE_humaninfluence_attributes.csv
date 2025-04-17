@@ -1,0 +1,4 @@
+gauge_id,dams_names,dams_river_names,dams_num,dams_year_first,dams_year_last,dams_total_lake_area,dams_total_lake_volume,dams_purposes
+DE110000,Brändbach Talsperre|Linach Talsperre|Wolterdingen Hochwasserrückhaltebecken,Breg|Brändbach|Linach,3,1922,2012,2.09,7.45,Flood control|Recreational use|Energy production
+DE110010,Brändbach Talsperre|Linach Talsperre|Wolterdingen Hochwasserrückhaltebecken,Breg|Brändbach|Linach,3,1922,2012,2.09,7.45,Flood control|Recreational use|Energy production
+DE110020,Brändbach Talsperre|KohlstattbrunnenbachHochwasserruckhaltebecken|Linach Talsperre|Wolterdingen Hochwasserrückhaltebecken,Breg|Brändbach|Linach|Kohlstattbrunnenbach,4,1922,2012,2.15,8.35,Flood control|Recreational use|Energy production
