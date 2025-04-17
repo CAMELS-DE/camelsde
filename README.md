@@ -15,7 +15,7 @@ pip install camelsde
 ## Usage
 
 > [!IMPORTANT]
-> The package requires the CAMELS-DE dataset to be downloaded and extracted. By default, it looks for the data in the `datasets/CAMELS_DE_v1_0_0` directory. You can specify a different path when initializing the `CAMELS_DE` class.
+> The package requires the CAMELS-DE dataset to be downloaded and extracted. 
 >
 > CAMELS-DE can be downloaded from Zenodo: [10.5281/zenodo.13837553](https://doi.org/10.5281/zenodo.13837553)
 
@@ -23,14 +23,38 @@ pip install camelsde
 * Gauging station point locations and catchment polygons are returned as `geopandas` GeodataFrames.
 * Interactive time series plots are created using `plotly`. 
 
+### Setting the CAMELS-DE Dataset Path
+
+The package will look for the dataset in the following order:
+
+1. `path` argument passed to the `CAMELS_DE` class constructor.
+2. User-configured permanent path (if set).
+3. `CAMELSDE_PATH` environment variable (if set)
+
+You can set a permanent path to your CAMELS-DE dataset in following ways:
+
+```python
+from camelsde import CAMELS_DE, set_camels_path
+
+# Option 1: Temporarily override the path for a specific instance
+camelsde = CAMELS_DE(path="/path/to/your/CAMELS_DE_v1_0_0")
+
+# Option 2: Set a permanent path that will be remembered across sessions
+set_camels_path("/path/to/your/CAMELS_DE_v1_0_0")
+
+camelsde = CAMELS_DE()  # Now this will use the permanent path
+
+```
+
+The permanent path is stored in a configuration file in your user config directory, which makes it available across all future Python sessions.
+
+### Basic Usage Examples
+
 ```python
 from camelsde import CAMELS_DE
 
-# Initialize with default path (datasets/CAMELS_DE_v1_0_0)
+# Initialize (uses the configured path or default)
 camelsde = CAMELS_DE()
-
-# Or specify a custom path to the extracted CAMELS-DE directory
-# camelsde = CAMELS_DE(path="/path/to/camelsde/data")
 
 # Load static attributes
 attributes = camelsde.load_static_attributes()
@@ -63,7 +87,7 @@ stations = camelsde.load_geopackage(layer="gauging_stations")
 This package works with the CAMELS-DE v1.0.0 dataset, which is publicly available at:
 - [CAMELS-DE Dataset on Zenodo](https://doi.org/10.5281/zenodo.13837553)
 
-The dataset needs to be downloaded and extracted before using this package. By default, the package looks for the data in the `datasets/CAMELS_DE_v1_0_0` directory.
+The dataset needs to be downloaded and extracted before using this package.
 
 ## Citation
 
