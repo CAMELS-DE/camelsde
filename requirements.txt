@@ -2,5 +2,7 @@ polars
 pandas
 geopandas
 plotly
-pydantic
+pydantic>=2.0.0
 pyarrow
+platformdirs>=3.0.0
+pydantic-settings>=2.0.0
