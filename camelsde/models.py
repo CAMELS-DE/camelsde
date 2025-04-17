@@ -1,11 +1,16 @@
 from typing import List, Optional, Union
 import warnings
+import os
+from pathlib import Path
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 import polars as pl
 import pandas as pd
 import geopandas as gpd
 import plotly.graph_objects as go
+
+# Default path for the CAMELS-DE dataset inside this repository
+DEFAULT_CAMELS_DE_PATH = str(Path(__file__).parent.parent / "datasets" / "CAMELS_DE_v1_0_0")
 
 class CAMELS_DE(BaseModel):
     """
@@ -16,12 +21,43 @@ class CAMELS_DE(BaseModel):
     path : str
         Path to the CAMELS-DE dataset folder.  
         Must be CAMELS-DE v1.0.0 at the moment.
+        Defaults to 'datasets/CAMELS_DE_v1_0_0' in the package directory.
     """
-    path: str
+    path: str = Field(default=DEFAULT_CAMELS_DE_PATH)
+
+    @validator('path')
+    def validate_dataset_path(cls, path_value):
+        """
+        Validate that the provided path exists and contains the CAMELS-DE dataset.
+        
+        Checks for the existence of key files that should be present in a valid
+        CAMELS-DE dataset installation.
+        """
+        path = Path(path_value)
+        
+        if not path.exists():
+            raise ValueError(
+                f"The specified path '{path}' does not exist. "
+                f"Please provide a valid path to the CAMELS-DE dataset or download the dataset "
+                f"from https://zenodo.org/records/13837553 and extract it to {DEFAULT_CAMELS_DE_PATH} "
+                f"or another location specified via the path parameter."
+            )
+        
+        # We check for the number of .csv files that should be present in the dataset
+        n_csv_files = len(list(path.rglob("*.csv")))
+        if n_csv_files < 3173:
+            raise ValueError(
+                f"The specified path '{path}' seems to not contain the complete CAMELS-DE dataset. "
+                f"Please ensure you have downloaded v1.0.0 from https://zenodo.org/records/13837553 "
+                f"and did not modify the folder structure and files."
+            )
+            
+        return str(path)
 
     def load_static_attributes(self, gauge_id: Optional[str] = None, columns: Optional[List[str]] = None, static_attribute: Optional[str] = None, filters: Optional[dict] = None) -> pd.DataFrame:
         """
-        Load static attributes from the dataset with optional filtering and gauge_id selection.
+        Load static attributes from the dataset with optional filtering and gauge_id selection.  
+        Note that the gauge_id column is always included in the returned DataFrame.
 
         Parameters
         ----------
@@ -84,6 +120,13 @@ class CAMELS_DE(BaseModel):
             dfs.append(df.to_pandas())
             
         df = pd.concat(dfs, axis=1)
+
+        # Make sure that column gauge_id is always present, but only once
+        df = df.loc[:, ~df.columns.duplicated()]
+
+        # Filter by gauge_id if provided
+        if gauge_id:
+            df = df[df["gauge_id"] == gauge_id]
         
         if columns:
             missing_columns = [col for col in columns if col not in df.columns]
@@ -93,6 +136,13 @@ class CAMELS_DE(BaseModel):
                 columns = [col for col in columns if col in df.columns]
             if not columns:
                 raise ValueError(f"Columns not found in the static attributes: {columns}")
+
+            # Always keep the gauge_id column at the first position
+            if "gauge_id" in columns:
+                columns.remove("gauge_id")
+                columns = ["gauge_id"] + columns
+            else:
+                columns = ["gauge_id"] + columns
 
             # Filter the DataFrame to include only the requested columns
             df = df[columns]
