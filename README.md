@@ -1,6 +1,6 @@
 # CAMELS-DE 🌊
 
-A Python package for working with the CAMELS-DE (Catchment Attributes and Meteorology for Large-sample Studies - Germany) dataset.
+A Python package for working with the [CAMELS-DE dataset](https://doi.org/10.5281/zenodo.13837553).
 
 ## About 🐪
 
@@ -13,6 +13,12 @@ pip install camelsde
 ```
 
 ## Usage
+
+> [!IMPORTANT]
+> The package requires the CAMELS-DE dataset to be downloaded and extracted. By default, it looks for the data in the `datasets/CAMELS_DE_v1_0_0` directory relative to the package installation. You can specify a different path when initializing the `CAMELS_DE` class.  
+The dataset can be downloaded from Zenodo: [10.5281/zenodo.13837553](https://doi.org/10.5281/zenodo.13837553)
+
+
 
 ```python
 from camelsde import CAMELS_DE
