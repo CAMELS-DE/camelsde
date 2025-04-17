@@ -22,6 +22,7 @@ classifiers = [
 ]
 dependencies = [
     "polars",
+    "pyarrow",
     "pandas",
     "geopandas",
     "plotly",
