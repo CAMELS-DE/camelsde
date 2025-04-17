@@ -16,7 +16,7 @@ class TestCAMELSDE:
     def test_init_with_path(self):
         """Test initializing CAMELS_DE with a specific path."""
         camelsde = CAMELS_DE(path=TEST_DATA_PATH, validate_path=False)
-        assert camelsde.path == TEST_DATA_PATH
+        assert camelsde.path == Path(TEST_DATA_PATH)
     
     def test_load_static_attributes(self):
         """Test loading static attributes."""

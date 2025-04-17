@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 from typing import Optional, Union
 
-from pydantic import Field
+from pydantic import Field, AliasChoices, AliasPath
 from pydantic_settings import BaseSettings, SettingsConfigDict
 import platformdirs
 
@@ -23,9 +23,11 @@ class Settings(BaseSettings):
     """
     Configuration for CAMELS-DE default path.
     Reads from environment or persistent config file.
-
     """
-    CAMELS_DE_PATH: Optional[Path] = Field(default=None, env="CAMELS_DE_PATH")
+    CAMELS_DE_PATH: Optional[Path] = Field(
+        default=None,
+        validation_alias=AliasChoices('CAMELS_DE_PATH')
+    )
 
     model_config = SettingsConfigDict(
         env_file=str(CONFIG_FILE),
@@ -48,7 +50,6 @@ def set_camels_path(p: Union[str, Path]) -> None:
     ----------
     p : str or Path
         Path to the CAMELS-DE dataset folder.
-        
     """
     p = Path(p)
     if not p.exists():
