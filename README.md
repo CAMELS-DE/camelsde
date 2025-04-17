@@ -15,10 +15,13 @@ pip install camelsde
 ## Usage
 
 > [!IMPORTANT]
-> The package requires the CAMELS-DE dataset to be downloaded and extracted. By default, it looks for the data in the `datasets/CAMELS_DE_v1_0_0` directory relative to the package installation. You can specify a different path when initializing the `CAMELS_DE` class.  
-The dataset can be downloaded from Zenodo: [10.5281/zenodo.13837553](https://doi.org/10.5281/zenodo.13837553)
+> The package requires the CAMELS-DE dataset to be downloaded and extracted. By default, it looks for the data in the `datasets/CAMELS_DE_v1_0_0` directory. You can specify a different path when initializing the `CAMELS_DE` class.
+>
+> CAMELS-DE can be downloaded from Zenodo: [10.5281/zenodo.13837553](https://doi.org/10.5281/zenodo.13837553)
 
-
+* The package uses `polars` for reading csv files efficiently, but the functions return `pandas` DataFrames at the moment.
+* Gauging station point locations and catchment polygons are returned as `geopandas` GeodataFrames.
+* Interactive time series plots are created using `plotly`. 
 
 ```python
 from camelsde import CAMELS_DE
@@ -26,7 +29,7 @@ from camelsde import CAMELS_DE
 # Initialize with default path (datasets/CAMELS_DE_v1_0_0)
 camelsde = CAMELS_DE()
 
-# Or specify a custom path
+# Or specify a custom path to the extracted CAMELS-DE directory
 # camelsde = CAMELS_DE(path="/path/to/camelsde/data")
 
 # Load static attributes
@@ -44,15 +47,13 @@ attributes3 = camelsde.load_static_attributes(columns=["gauge_name", "gauge_elev
 # Load specific gauge ID
 gauge_data = camelsde.load_static_attributes(gauge_id="DE110000")
 
-# Load and plot timeseries data
-import matplotlib.pyplot as plt
+# Load timeseries data
 ts_data = camelsde.load_timeseries(gauge_id="DE110000")
 
 # Plot timeseries with Plotly
-fig = camelsde.plot_timeseries(gauge_id="DE110000", columns=["precipitation", "discharge_spec_obs", "discharge_spec_sim_lstm"])
-fig.show()
+camelsde.plot_timeseries(gauge_id="DE110000", columns=["precipitation", "discharge_spec_obs", "discharge_spec_sim_lstm"])
 
-# Load geospatial data
+# Load geospatial data (returns a geopandas GeoDataFrame)
 catchments = camelsde.load_geopackage(layer="catchments")
 stations = camelsde.load_geopackage(layer="gauging_stations")
 ```
@@ -62,7 +63,7 @@ stations = camelsde.load_geopackage(layer="gauging_stations")
 This package works with the CAMELS-DE v1.0.0 dataset, which is publicly available at:
 - [CAMELS-DE Dataset on Zenodo](https://doi.org/10.5281/zenodo.13837553)
 
-The dataset needs to be downloaded and extracted before using this package. By default, the package looks for the data in the `datasets/CAMELS_DE_v1_0_0` directory relative to the package installation.
+The dataset needs to be downloaded and extracted before using this package. By default, the package looks for the data in the `datasets/CAMELS_DE_v1_0_0` directory.
 
 ## Citation
 
