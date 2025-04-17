@@ -3,7 +3,7 @@ import warnings
 import os
 from pathlib import Path
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, model_validator
 import polars as pl
 import pandas as pd
 import geopandas as gpd
@@ -20,39 +20,49 @@ class CAMELS_DE(BaseModel):
     ----------
     path : str
         Path to the CAMELS-DE dataset folder.  
-        Must be CAMELS-DE v1.0.0 at the moment.
+        Must be CAMELS-DE v1.0.0 at the moment.  
         Defaults to 'datasets/CAMELS_DE_v1_0_0' in the package directory.
+    validate_path : bool
+        If True, validates the dataset path by checking for the existence of key files.  
+        Defaults to True. Can be set to False especially for testing purposes.
+
     """
     path: str = Field(default=DEFAULT_CAMELS_DE_PATH)
-
-    @validator('path')
-    def validate_dataset_path(cls, path_value):
+    validate_path: bool = Field(default=True, exclude=True)
+    
+    @model_validator(mode="before")
+    def check_path_validation(cls, values):
         """
-        Validate that the provided path exists and contains the CAMELS-DE dataset.
+        Validate the dataset path based on the validate_path parameter.
         
-        Checks for the existence of key files that should be present in a valid
-        CAMELS-DE dataset installation.
+        This root validator runs before field validation and checks if path validation
+        should be performed based on the validate_path parameter.
         """
-        path = Path(path_value)
+        path_value = values.get('path', DEFAULT_CAMELS_DE_PATH)
+        validate_path = values.get('validate_path', True)
         
-        if not path.exists():
-            raise ValueError(
-                f"The specified path '{path}' does not exist. "
-                f"Please provide a valid path to the CAMELS-DE dataset or download the dataset "
-                f"from https://zenodo.org/records/13837553 and extract it to {DEFAULT_CAMELS_DE_PATH} "
-                f"or another location specified via the path parameter."
-            )
-        
-        # We check for the number of .csv files that should be present in the dataset
-        n_csv_files = len(list(path.rglob("*.csv")))
-        if n_csv_files < 3173:
-            raise ValueError(
-                f"The specified path '{path}' seems to not contain the complete CAMELS-DE dataset. "
-                f"Please ensure you have downloaded v1.0.0 from https://zenodo.org/records/13837553 "
-                f"and did not modify the folder structure and files."
-            )
+        if validate_path:
+            path = Path(path_value)
             
-        return str(path)
+            if not path.exists():
+                raise ValueError(
+                    f"The specified path '{path}' does not exist. "
+                    f"Please provide a valid path to the CAMELS-DE dataset or download the dataset "
+                    f"from https://zenodo.org/records/13837553 and extract it to {DEFAULT_CAMELS_DE_PATH} "
+                    f"or another location specified via the path parameter."
+                )
+            
+            # We check for the number of .csv files that should be present in the dataset
+            n_csv_files = len(list(path.rglob("*.csv")))
+            if n_csv_files < 3173:
+                raise ValueError(
+                    f"The specified path '{path}' seems to not contain the complete CAMELS-DE dataset. "
+                    f"Please ensure you have downloaded v1.0.0 from https://zenodo.org/records/13837553 "
+                    f"and did not modify the folder structure and files."
+                    )
+        
+        # Return the values unchanged
+        return values
 
     def load_static_attributes(self, gauge_id: Optional[str] = None, columns: Optional[List[str]] = None, static_attribute: Optional[str] = None, filters: Optional[dict] = None) -> pd.DataFrame:
         """
@@ -138,10 +148,7 @@ class CAMELS_DE(BaseModel):
                 raise ValueError(f"Columns not found in the static attributes: {columns}")
 
             # Always keep the gauge_id column at the first position
-            if "gauge_id" in columns:
-                columns.remove("gauge_id")
-                columns = ["gauge_id"] + columns
-            else:
+            if "gauge_id" not in columns:
                 columns = ["gauge_id"] + columns
 
             # Filter the DataFrame to include only the requested columns
@@ -184,7 +191,9 @@ class CAMELS_DE(BaseModel):
             DataFrame containing the timeseries data for the specified gauge ID.
         """
         file_path = f"{self.path}/timeseries/CAMELS_DE_hydromet_timeseries_{gauge_id}.csv"
-        df = pl.read_csv(file_path)
+
+        df = pl.read_csv(file_path, try_parse_dates=True)
+
         return df.to_pandas()
     
     def load_simulated_timeseries(self, gauge_id: str) -> pd.DataFrame:
@@ -202,7 +211,14 @@ class CAMELS_DE(BaseModel):
             DataFrame containing the simulated timeseries data for the specified gauge ID.
         """
         file_path = f"{self.path}/timeseries_simulated/CAMELS_DE_discharge_sim_{gauge_id}.csv"
-        df = pl.read_csv(file_path)
+        
+        df = pl.read_csv(file_path, try_parse_dates=True)
+
+        # all columns of polars but date and simulation_period are float -> convert
+        for col in df.columns:
+            if col not in ["date", "simulation_period"]:
+                df = df.with_columns(pl.col(col).cast(pl.Float64))
+
         return df.to_pandas()
 
     def load_geopackage(self, layer: str, gauge_ids: Optional[List[str]] = None) -> gpd.GeoDataFrame:
@@ -257,11 +273,7 @@ class CAMELS_DE(BaseModel):
         observed_df = self.load_timeseries(gauge_id)
         simulated_df = self.load_simulated_timeseries(gauge_id)
         
-        # Create a combined DataFrame with unique columns
-        # First, determine common columns (except 'date')
-        common_columns = [col for col in observed_df.columns if col in simulated_df.columns and col != 'date']
-        
-        # Start with a copy of the observed dataframe
+        # Combine: start with a copy of the observed dataframe
         merged_df = observed_df.copy()
         
         # Add non-overlapping columns from simulated data
