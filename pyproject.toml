@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling>=1.18.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "camelsde"
+version = "0.1.0"
+description = "Python package for working with the CAMELS-DE dataset"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {file = "LICENSE"}
+authors = [
+    {name = "alexander.dolich@kit.edu"}
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Hydrology",
+]
+dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[project.urls]
+"Homepage" = "https://github.com/AlexDo1/camelsde"
+"Bug Tracker" = "https://github.com/AlexDo1/camelsde/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["camelsde"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "camelsde",
+    "LICENSE",
+    "README.md",
+    "pyproject.toml",
+]
