@@ -1,10 +1,10 @@
-# CAMELS-DE
+# CAMELS-DE 🌊
 
 A Python package for working with the CAMELS-DE (Catchment Attributes and Meteorology for Large-sample Studies - Germany) dataset.
 
-## About
+## About 🐪
 
-CAMELS-DE provides access to hydrometeorological time series data and catchment attributes for 1582 catchments in Germany. This package offers a simple interface for loading, analyzing, and visualizing data from the CAMELS-DE dataset.
+CAMELS-DE provides access to hydrometeorological time series data and catchment attributes for 1582 catchments in Germany. This package offers a simple interface for loading, analyzing, and visualizing data from the CAMELS-DE dataset.  
 
 ## Installation
 
