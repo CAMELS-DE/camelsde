@@ -8,5 +8,5 @@ from the CAMELS-DE (Catchment Attributes and Meteorology for Large-sample Studie
 from camelsde.models import CAMELS_DE
 from camelsde.config import get_settings, set_camels_path
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __all__ = ["CAMELS_DE"]
