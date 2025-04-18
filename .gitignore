@@ -1,5 +1,5 @@
 # folder to store CAMELS-DE datasets
-datasets
+#datasets
 
 __pycache__
 dist
